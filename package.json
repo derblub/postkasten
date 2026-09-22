@@ -1,0 +1,31 @@
+{
+  "name": "postkasten",
+  "version": "0.1.0",
+  "description": "Schedule social posts as Markdown files in git and publish them to LinkedIn and Bluesky from a cron job. No database, no service, no runtime dependencies.",
+  "license": "MIT",
+  "author": "Daniel Kurdoghlian <daniel@pushingpixels.at> (https://pushingpixels.at)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/derblub/postkasten.git"
+  },
+  "keywords": ["linkedin", "bluesky", "atproto", "scheduler", "social-media", "cli", "gitops"],
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "postkasten": "bin/postkasten.js"
+  },
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": ["bin", "src", "docs", "examples", "README.md", "LICENSE"],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "node --check bin/postkasten.js && node -e \"import('./src/index.js')\""
+  },
+  "devDependencies": {
+    "vitest": "^3.2.0"
+  }
+}

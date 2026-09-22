@@ -1,0 +1,14 @@
+{
+  "name": "social-posts",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "validate": "postkasten validate",
+    "plan": "postkasten plan",
+    "dry-run": "postkasten publish --dry-run"
+  },
+  "dependencies": {
+    "postkasten": "github:derblub/postkasten#v0.1.0"
+  }
+}

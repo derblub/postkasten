@@ -1,0 +1,8 @@
+{
+  "timezone": "Europe/Vienna",
+  "dueWindowHours": 12,
+  "linkedinVersion": "202609",
+  "bskyService": "https://bsky.social",
+  "branch": "main",
+  "gitUser": { "name": "postkasten", "email": "postkasten@example.com" }
+}

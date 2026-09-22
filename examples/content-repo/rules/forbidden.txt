@@ -1,0 +1,11 @@
+# One forbidden substring per line, matched case-insensitively.
+# Em dash, en dash and utm_ are always forbidden.
+dive into
+unleash
+elevate your
+seamlessly
+cutting-edge
+harness the power
+it's worth noting
+in today's world
+game-changer

@@ -1,0 +1,174 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`publish > publishes both channels with intent and published lines and the exact requests 1`] = `
+[
+  {
+    "body": undefined,
+    "headers": {
+      "authorization": "Bearer ***",
+      "linkedin-version": "202609",
+      "x-restli-protocol-version": "2.0.0",
+    },
+    "method": "GET",
+    "url": "https://api.linkedin.com/v2/userinfo",
+  },
+  {
+    "body": {
+      "initializeUploadRequest": {
+        "owner": "urn:li:person:DRYRUN",
+      },
+    },
+    "headers": {
+      "authorization": "Bearer ***",
+      "content-type": "application/json",
+      "linkedin-version": "202609",
+      "x-restli-protocol-version": "2.0.0",
+    },
+    "method": "POST",
+    "url": "https://api.linkedin.com/rest/images?action=initializeUpload",
+  },
+  {
+    "body": {
+      "bytes": 4,
+    },
+    "headers": {
+      "authorization": "Bearer ***",
+      "content-type": "image/png",
+    },
+    "method": "PUT",
+    "url": "https://dryrun.invalid/upload",
+  },
+  {
+    "body": {
+      "author": "urn:li:person:DRYRUN",
+      "commentary": "Jede Schemaänderung lief bei diesem Marktplatz gleich ab: für 3 Uhr früh einplanen, jemanden wach halten, hoffen.
+
+Vier Migrationen und ein Backfill in Batches haben die neue Pflichtspalte mitten im Peak-Traffic eingeführt.
+
+https://pushingpixels.at/de/portfolio/zero-downtime-migrations
+
+#Django #PostgreSQL",
+      "content": {
+        "article": {
+          "description": "Desc",
+          "source": "https://pushingpixels.at/de/portfolio/zero-downtime-migrations",
+          "thumbnail": "urn:li:image:DRYRUN",
+          "title": "Migrationen ohne Wartungsfenster",
+        },
+      },
+      "distribution": {
+        "feedDistribution": "MAIN_FEED",
+        "targetEntities": [],
+        "thirdPartyDistributionChannels": [],
+      },
+      "isReshareDisabledByAuthor": false,
+      "lifecycleState": "PUBLISHED",
+      "visibility": "PUBLIC",
+    },
+    "headers": {
+      "authorization": "Bearer ***",
+      "content-type": "application/json",
+      "linkedin-version": "202609",
+      "x-restli-protocol-version": "2.0.0",
+    },
+    "method": "POST",
+    "url": "https://api.linkedin.com/rest/posts",
+  },
+  {
+    "body": {
+      "identifier": "h.example",
+      "password": "p",
+    },
+    "headers": {
+      "content-type": "application/json",
+    },
+    "method": "POST",
+    "url": "https://bsky.social/xrpc/com.atproto.server.createSession",
+  },
+  {
+    "body": undefined,
+    "headers": {
+      "authorization": "Bearer ***",
+    },
+    "method": "GET",
+    "url": "https://bsky.social/xrpc/app.bsky.feed.getAuthorFeed?actor=did%3Aplc%3Adryrun&limit=50&filter=posts_no_replies",
+  },
+  {
+    "body": {
+      "bytes": 4,
+    },
+    "headers": {
+      "authorization": "Bearer ***",
+      "content-type": "image/png",
+    },
+    "method": "POST",
+    "url": "https://bsky.social/xrpc/com.atproto.repo.uploadBlob",
+  },
+  {
+    "body": {
+      "collection": "app.bsky.feed.post",
+      "record": {
+        "$type": "app.bsky.feed.post",
+        "createdAt": "<now>",
+        "embed": {
+          "$type": "app.bsky.embed.external",
+          "external": {
+            "description": "Desc",
+            "thumb": {
+              "$type": "blob",
+              "mimeType": "image/png",
+              "ref": {
+                "$link": "bafydryrun",
+              },
+              "size": 1,
+            },
+            "title": "Zero-downtime migrations",
+            "uri": "https://pushingpixels.at/portfolio/zero-downtime-migrations",
+          },
+        },
+        "facets": [
+          {
+            "features": [
+              {
+                "$type": "app.bsky.richtext.facet#tag",
+                "tag": "Django",
+              },
+            ],
+            "index": {
+              "byteEnd": 267,
+              "byteStart": 260,
+            },
+          },
+          {
+            "features": [
+              {
+                "$type": "app.bsky.richtext.facet#tag",
+                "tag": "PostgreSQL",
+              },
+            ],
+            "index": {
+              "byteEnd": 279,
+              "byteStart": 268,
+            },
+          },
+        ],
+        "langs": [
+          "en",
+        ],
+        "text": "Every schema change at this marketplace ran the same way: schedule it for 3 am, keep someone awake, hope.
+
+A required column on a four-million-row table shipped at peak traffic instead: four migrations and a batched backfill. Batch size was the whole design.
+
+#Django #PostgreSQL",
+      },
+      "repo": "did:plc:dryrun",
+    },
+    "headers": {
+      "authorization": "Bearer ***",
+      "content-type": "application/json",
+    },
+    "method": "POST",
+    "url": "https://bsky.social/xrpc/com.atproto.repo.createRecord",
+  },
+]
+`;
