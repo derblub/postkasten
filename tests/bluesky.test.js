@@ -39,6 +39,9 @@ describe("createBluesky", () => {
   it("converts at-URIs to web URLs", () => {
     expect(postUrl("at://did:plc:1/app.bsky.feed.post/rk", "h.example")).toBe("https://bsky.app/profile/h.example/post/rk");
     expect(rkeyOf("at://did:plc:1/app.bsky.feed.post/rk")).toBe("rk");
+    expect(rkeyOf("https://bsky.app/profile/h.example/post/rk/")).toBe("rk");
+    expect(rkeyOf("rk")).toBe("rk");
+    expect(rkeyOf("")).toBeNull();
     expect(postUrl("nope")).toBeNull();
   });
 });

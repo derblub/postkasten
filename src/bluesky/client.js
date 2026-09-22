@@ -77,6 +77,9 @@ export function postUrl(uri, handle) {
   return `https://bsky.app/profile/${handle || m[1]}/post/${m[2]}`;
 }
 
-export function rkeyOf(uri) {
-  return /\/([^/]+)$/.exec(uri ?? "")?.[1] ?? null;
+/** The record key from an at:// URI, a bsky.app URL, or a bare rkey. */
+export function rkeyOf(target) {
+  const s = String(target ?? "").trim().replace(/\/$/, "");
+  if (!s) return null;
+  return s.includes("/") ? s.slice(s.lastIndexOf("/") + 1) : s;
 }
