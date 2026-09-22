@@ -101,6 +101,17 @@ describe("publish", () => {
     expect(bsky).toMatchObject({ duplicate: true, id: "at://did:plc:dryrun/app.bsky.feed.post/old" });
   });
 
+  it("leaves a disabled channel pending without touching the state", async () => {
+    const dir = await tempRepo();
+    const { writeFile } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    await writeFile(join(dir, "postkasten.config.json"), JSON.stringify({ channels: ["bluesky"] }));
+    const { summary } = await run(dir);
+    expect(summary.disabled).toEqual([{ file: FILE, channel: "linkedin" }]);
+    expect(summary.published.map((p) => p.channel)).toEqual(["bluesky"]);
+    expect((await readState(dir)).map((e) => `${e.channel}:${e.status}`)).toEqual(["bluesky:intent", "bluesky:published"]);
+  });
+
   it("stops before posting when git preflight fails", async () => {
     const dir = await tempRepo();
     const git = { ...createNullGit(), preflight: async () => { throw new Error("git push failed: rejected"); } };

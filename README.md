@@ -56,6 +56,8 @@ Start from [`examples/content-repo`](examples/content-repo): copy it into a priv
 | `bluesky test-post` / `bluesky delete <rkey>` | Same for Bluesky |
 | `resolve <file> <channel> --published <id> \| --drop` | Closes an open intent by hand |
 
+`channels` in the config (default both) lets you run one channel before the other account is connected; see [docs/ci.md](docs/ci.md).
+
 Credentials come from the environment: `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD`, `NTFY_TOPIC` (optional, ntfy.sh notifications). Settings live in `postkasten.config.json` (time zone, due window, LinkedIn API version, branch).
 
 ## How publishing stays safe

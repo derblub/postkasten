@@ -11,6 +11,7 @@ export const DEFAULT_CONFIG = {
   linkedinVersion: "202609",
   bskyService: "https://bsky.social",
   branch: "main",
+  channels: ["linkedin", "bluesky"],
   postsDir: "posts",
   stateFile: "state/published.jsonl",
   rulesFile: "rules/forbidden.txt",
@@ -26,6 +27,9 @@ export async function loadConfig(cwd) {
     if (err.code !== "ENOENT") throw new Error(`postkasten.config.json: ${err.message}`);
   }
   const config = { ...DEFAULT_CONFIG, ...overrides, gitUser: { ...DEFAULT_CONFIG.gitUser, ...overrides.gitUser } };
+  if (!Array.isArray(config.channels) || config.channels.some((c) => !["linkedin", "bluesky"].includes(c))) {
+    throw new Error(`channels must be a list of "linkedin" and/or "bluesky", got ${JSON.stringify(config.channels)}`);
+  }
   if (!/^\d{6}$/.test(String(config.linkedinVersion))) {
     throw new Error(`linkedinVersion must be YYYYMM, got ${config.linkedinVersion}`);
   }

@@ -14,8 +14,11 @@ export async function run() {
   const findings = [];
   const problems = [];
 
+  const enabled = new Set(config.channels);
+
   // LinkedIn token
-  if (!creds.linkedin.token) problems.push("LINKEDIN_ACCESS_TOKEN is not set");
+  if (!enabled.has("linkedin")) findings.push("LinkedIn channel disabled in config, not checked");
+  else if (!creds.linkedin.token) problems.push("LINKEDIN_ACCESS_TOKEN is not set");
   else if (!creds.linkedin.clientId || !creds.linkedin.clientSecret) findings.push("LinkedIn token set; expiry unknown without LINKEDIN_CLIENT_ID/SECRET");
   else {
     try {
@@ -43,11 +46,13 @@ export async function run() {
   // LinkedIn API version age
   const v = String(creds.linkedin.version ?? config.linkedinVersion);
   const ageMonths = (new Date().getUTCFullYear() - Number(v.slice(0, 4))) * 12 + (new Date().getUTCMonth() + 1 - Number(v.slice(4)));
-  if (ageMonths >= 10) problems.push(`LinkedIn-Version ${v} is ${ageMonths} months old; versions are sunset after about a year. Bump linkedinVersion.`);
+  if (!enabled.has("linkedin")) { /* nothing to check */ }
+  else if (ageMonths >= 10) problems.push(`LinkedIn-Version ${v} is ${ageMonths} months old; versions are sunset after about a year. Bump linkedinVersion.`);
   else findings.push(`LinkedIn-Version ${v} (${ageMonths} months old)`);
 
   // Bluesky
-  try {
+  if (!enabled.has("bluesky")) findings.push("Bluesky channel disabled in config, not checked");
+  else try {
     const bsky = createBluesky({ service: config.bskyService });
     const { handle } = await bsky.login(creds.bluesky.handle, creds.bluesky.appPassword);
     findings.push(`Bluesky login ok as ${handle}`);

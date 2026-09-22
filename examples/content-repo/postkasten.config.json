@@ -4,5 +4,6 @@
   "linkedinVersion": "202609",
   "bskyService": "https://bsky.social",
   "branch": "main",
+  "channels": ["linkedin", "bluesky"],
   "gitUser": { "name": "postkasten", "email": "postkasten@example.com" }
 }

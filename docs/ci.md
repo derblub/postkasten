@@ -50,6 +50,10 @@ with the variables in the environment or a `.env` sourced before the command.
 5. Per candidate: `skipped` if beyond the due window; otherwise `intent` → publish → `published`, each line committed and pushed at once. Failures write a `failed` line and continue with the next candidate.
 6. Exit code 1 if anything failed or was blocked, so the pipeline shows red.
 
+## Enabling channels one at a time
+
+`channels` in `postkasten.config.json` (default `["linkedin", "bluesky"]`) lists the channels the publisher serves. A channel that is not listed is left alone: its posts stay pending, no state line is written, `doctor` skips its checks. Useful while one account is not connected yet. When you enable it later, posts whose `at` is already past the due window get a `skipped` line on the next run; set a new `at` for the ones you still want out. A file whose other channel was already published keeps that `published` line whatever `at` says.
+
 ## Notifications
 
 With `NTFY_TOPIC` set, every published post, skip, failure, open intent and doctor finding is one ntfy message (title, priority, tags, click URL). Subscribe to the topic in the ntfy app.

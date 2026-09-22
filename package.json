@@ -1,6 +1,6 @@
 {
   "name": "postkasten",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Schedule social posts as Markdown files in git and publish them to LinkedIn and Bluesky from a cron job. No database, no service, no runtime dependencies.",
   "license": "MIT",
   "author": "Daniel Kurdoghlian <daniel@pushingpixels.at> (https://pushingpixels.at)",

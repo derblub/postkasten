@@ -16,7 +16,7 @@ export async function run(args) {
     const cells = Object.keys(post.channels).map((ch) => {
       const s = resolveStatus(state, post.file, ch, post.at);
       const mark = { published: "✓", pending: post.atMs <= now ? "⏳" : "·", blocked: "⚠", given_up: "✗", skipped: "↷" }[s.status];
-      return `${mark} ${ch}`;
+      return `${mark} ${ch}${config.channels.includes(ch) || s.status === "published" ? "" : " (off)"}`;
     });
     const done = Object.keys(post.channels).every((ch) => resolveStatus(state, post.file, ch, post.at).status === "published");
     if (done && !args.values.all) continue;

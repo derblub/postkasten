@@ -28,7 +28,8 @@ import { validate, readOptional } from "./validate.js";
  * @param {Function} o.log
  */
 export async function publish({ cwd, config, creds, nowMs, git, notify, fetch: apiFetch, fetchResource, dryRun = false, log = () => {}, visibility = "PUBLIC" }) {
-  const summary = { published: [], failed: [], skipped: [], blocked: [], givenUp: [], invalid: [], candidates: 0 };
+  const summary = { published: [], failed: [], skipped: [], blocked: [], givenUp: [], invalid: [], disabled: [], candidates: 0 };
+  const enabled = new Set(config.channels);
   const statePath = join(cwd, config.stateFile);
   const now = new Date(nowMs).toISOString();
 
@@ -45,6 +46,13 @@ export async function publish({ cwd, config, creds, nowMs, git, notify, fetch: a
     if (invalidFiles.has(post.file) || !isDue(post.atMs, nowMs)) continue;
     for (const channel of Object.keys(post.channels)) {
       const status = resolveStatus(state, post.file, channel, post.at);
+      if (!enabled.has(channel)) {
+        if (status.status !== "published") {
+          summary.disabled.push({ file: post.file, channel });
+          log(`waiting: ${post.file} ${channel} (channel not enabled in config)`);
+        }
+        continue;
+      }
       if (status.status === "published" || status.status === "skipped") continue;
       if (status.status === "blocked") {
         summary.blocked.push({ file: post.file, channel });
