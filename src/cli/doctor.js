@@ -3,11 +3,23 @@ import { introspectToken } from "../linkedin/client.js";
 import { createBluesky } from "../bluesky/client.js";
 import { parseState, openIntents } from "../state.js";
 import { readOptional } from "../validate.js";
+import { linkedinVersion } from "../config.js";
 import { context, log, out } from "./context.js";
 
 export const usage = "doctor                   check credentials, LinkedIn token expiry, API version age, open intents";
 
 const WARN_DAYS = [14, 7, 3, 1];
+
+/**
+ * Daily doctor runs warn once at 14, 7, 3 and 1 days left (by `Math.ceil`),
+ * and on every run within the last day. `urgent` from 3 days on.
+ * @returns {{ days: number, priority: "high" | "urgent" } | null}
+ */
+export function expiryWarning(days) {
+  const left = Math.max(0, Math.ceil(days));
+  if (!(days <= 1 || WARN_DAYS.includes(left))) return null;
+  return { days: left, priority: days <= 3 ? "urgent" : "high" };
+}
 
 export async function run() {
   const { cwd, config, creds, notify } = await context();
@@ -28,11 +40,11 @@ export async function run() {
         const days = (info.expires_at * 1000 - Date.now()) / 86_400_000;
         const when = new Date(info.expires_at * 1000).toISOString().slice(0, 10);
         findings.push(`LinkedIn token valid until ${when} (${days.toFixed(1)} days)`);
-        const threshold = WARN_DAYS.find((d) => days <= d);
-        if (threshold !== undefined) {
+        const warning = expiryWarning(days);
+        if (warning) {
           await notify({
-            title: `LinkedIn token expires in ${Math.max(0, Math.ceil(days))} day(s)`,
-            priority: threshold <= 3 ? "urgent" : "high",
+            title: `LinkedIn token expires in ${warning.days} day(s)`,
+            priority: warning.priority,
             tags: ["key"],
             message: `Valid until ${when}. Renew: postkasten linkedin auth, then update LINKEDIN_ACCESS_TOKEN in CI.`,
           });
@@ -44,9 +56,15 @@ export async function run() {
   }
 
   // LinkedIn API version age
-  const v = String(creds.linkedin.version ?? config.linkedinVersion);
-  const ageMonths = (new Date().getUTCFullYear() - Number(v.slice(0, 4))) * 12 + (new Date().getUTCMonth() + 1 - Number(v.slice(4)));
+  let v, versionError;
+  try {
+    v = String(linkedinVersion(creds, config));
+  } catch (err) {
+    versionError = err.message;
+  }
+  const ageMonths = v && (new Date().getUTCFullYear() - Number(v.slice(0, 4))) * 12 + (new Date().getUTCMonth() + 1 - Number(v.slice(4)));
   if (!enabled.has("linkedin")) { /* nothing to check */ }
+  else if (versionError) problems.push(versionError);
   else if (ageMonths >= 10) problems.push(`LinkedIn-Version ${v} is ${ageMonths} months old; versions are sunset after about a year. Bump linkedinVersion.`);
   else findings.push(`LinkedIn-Version ${v} (${ageMonths} months old)`);
 

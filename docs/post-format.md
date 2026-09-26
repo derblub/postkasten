@@ -31,7 +31,7 @@ Text for Bluesky.
 | `<channel>.title`, `.description`, `.image` | no | Override the page's `og:title`, `og:description`, `og:image`. The image must be PNG or JPEG under 1 MB. |
 | `bluesky.lang` | no | BCP 47 language of the text, default `en`. |
 
-The parser understands scalars, one level of nesting with two-space indentation, quoted strings and `#` comments. Nothing else.
+The parser understands scalars, one level of nesting with two-space indentation, quoted strings and `#` comments. Nothing else. In double quotes, `\"` and `\\` are escapes; in single quotes, `''` is a literal `'`. Text after a closing quote other than a comment is an error. A `#` after whitespace starts a comment, so a value containing ` #` (`Folge #3`) must be quoted. A leading UTF-8 byte order mark is ignored.
 
 ## Sections
 
@@ -49,8 +49,8 @@ The parser understands scalars, one level of nesting with two-space indentation,
 `postkasten validate` checks every file:
 
 - front matter schema and unknown keys
-- `at` has an explicit offset, and that offset matches the configured time zone at that instant
+- `at` is a real calendar date (no Feb 30) with an explicit offset, and that offset matches the configured time zone at that instant
 - LinkedIn length after escaping, Bluesky grapheme count, facets computable
-- forbidden substrings in texts, `utm_` in links
+- forbidden substrings in texts and `title`/`description` overrides, `utm_` in links
 - links answer with 200 and have `og:title` (or a `title` override), card images are PNG/JPEG under 1 MB (skipped with `--offline`)
 - publish-log lines whose file no longer exists, open intents

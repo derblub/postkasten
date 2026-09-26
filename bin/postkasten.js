@@ -12,21 +12,27 @@ const COMMANDS = {
   bluesky: () => import("../src/cli/bluesky.js"),
 };
 
-const args = parseArgs({
-  allowPositionals: true,
-  options: {
-    "dry-run": { type: "boolean" },
-    offline: { type: "boolean" },
-    all: { type: "boolean" },
-    drop: { type: "boolean" },
-    help: { type: "boolean", short: "h" },
-    now: { type: "string" },
-    text: { type: "string" },
-    file: { type: "string" },
-    published: { type: "string" },
-    redirect: { type: "string" },
-  },
-});
+let args;
+try {
+  args = parseArgs({
+    allowPositionals: true,
+    options: {
+      "dry-run": { type: "boolean" },
+      offline: { type: "boolean" },
+      all: { type: "boolean" },
+      drop: { type: "boolean" },
+      help: { type: "boolean", short: "h" },
+      now: { type: "string" },
+      text: { type: "string" },
+      file: { type: "string" },
+      published: { type: "string" },
+      redirect: { type: "string" },
+    },
+  });
+} catch (err) {
+  process.stderr.write(`${err.message}\nRun "postkasten --help" for usage.\n`);
+  process.exit(1);
+}
 
 const name = args.positionals[0];
 if (!name || args.values.help || !COMMANDS[name]) {

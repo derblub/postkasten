@@ -46,13 +46,11 @@ export function resolveStatus(entries, file, channel, at) {
   const published = own.find((e) => e.status === "published");
   if (published) return { status: "published", entry: published, failures: 0 };
 
-  const intents = own.filter((e) => e.status === "intent");
-  const resolved = own.filter((e) => e.status === "failed" || e.status === "resolved");
-  // An intent is open when no later failed/resolved/published line followed it.
-  const lastIntent = intents.at(-1);
-  if (lastIntent) {
-    const later = resolved.find((e) => e.ts > lastIntent.ts);
-    if (!later) return { status: "blocked", entry: lastIntent, failures: 0 };
+  // An intent is open when no failed/resolved line follows it in the file
+  // (append order, like openIntents; `ts` comes from different clocks).
+  const lastIntent = own.findLastIndex((e) => e.status === "intent");
+  if (lastIntent !== -1 && !own.slice(lastIntent + 1).some((e) => e.status === "failed" || e.status === "resolved")) {
+    return { status: "blocked", entry: own[lastIntent], failures: 0 };
   }
 
   const failures = own.filter((e) => e.status === "failed" && e.at === at).length;

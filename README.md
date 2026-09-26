@@ -36,7 +36,7 @@ Title, description and image of the link card are read from the page's Open Grap
 Node 24 or newer.
 
 ```sh
-npm install github:derblub/postkasten#v0.1.0
+npm install github:derblub/postkasten#v0.1.2
 npx postkasten --help
 ```
 
@@ -49,7 +49,7 @@ Start from [`examples/content-repo`](examples/content-repo): copy it into a priv
 | `validate [--offline]` | Schema, offsets, lengths (3000 characters LinkedIn after escaping, 300 graphemes Bluesky), forbidden phrases, link reachability, image type and size |
 | `plan [--all]` | Upcoming posts as a calendar with their state per channel |
 | `publish [--dry-run] [--now ISO]` | Posts everything that is due. `--dry-run` prints every request it would send, redacted, and touches nothing |
-| `doctor` | Credentials, LinkedIn token expiry (warns at 14, 7, 3 and 1 days), API version age, open intents |
+| `doctor` | Credentials, LinkedIn token expiry (warns at 14, 7, 3 and 1 days, urgent from 3), API version age, open intents |
 | `linkedin auth` | Browser login, prints a 60-day token and the command to store it in CI |
 | `linkedin test-post` / `linkedin delete <urn>` | A connections-only post to check the rendering, and its removal |
 | `bluesky profile` | Sets display name and bio from `profile/bluesky.md`; avatar and banner stay |
@@ -58,15 +58,15 @@ Start from [`examples/content-repo`](examples/content-repo): copy it into a priv
 
 `channels` in the config (default both) lets you run one channel before the other account is connected; see [docs/ci.md](docs/ci.md).
 
-Credentials come from the environment: `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD`, `NTFY_TOPIC` (optional, ntfy.sh notifications). Settings live in `postkasten.config.json` (time zone, due window, LinkedIn API version, branch).
+Credentials come from the environment: `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD`, `NTFY_TOPIC` (optional, ntfy.sh notifications). An empty variable counts as unset. Settings live in `postkasten.config.json` (time zone, due window, LinkedIn API version, branch).
 
 ## How publishing stays safe
 
 The hard part of a git-backed scheduler is "posted, but the state never made it back". LinkedIn does not let an app read its own posts, so the log has to be right by construction:
 
-1. **Preflight.** Before anything is posted: fetch, check out the branch, `git push --dry-run`. If the push would fail, nothing is posted.
-2. **Intent first.** For every (post, channel) an `intent` line is committed and pushed. Then the post goes out. Then a `published` line is committed and pushed.
-3. **An open intent blocks.** If a run finds an `intent` without a result, it does not post that item again; it sends a notification and waits for `resolve`.
+1. **Preflight.** Before anything is posted or reported: fetch, check out the branch, `git push --dry-run -o ci.skip`, then read queue and state again from the synced tree. If the push would fail, nothing is posted.
+2. **Intent first.** For every (post, channel), everything that cannot create a post (Open Graph fetch, login) happens first. Then an `intent` line is committed and pushed; if another run pushed one for the same item in the meantime, this run stops. Then the post goes out. Then a `published` line is committed and pushed. If that last push fails, a "state lost" notification carries the id and the `resolve` command.
+3. **An open intent blocks.** If a run finds an `intent` without a result, it does not post that item again; it sends a notification and waits for `resolve`. A create request whose outcome is unknown (network error, timeout, 5xx, 408, 429) leaves its intent open the same way instead of retrying.
 4. **Bluesky is double-checked** against the account's recent posts before posting.
 5. **Overdue posts are skipped**, not dumped: anything more than `dueWindowHours` (default 12) past its time gets a `skipped` line and a notification. Re-date it to post it.
 6. **Three failures** for the same `at` and the item is left alone until it is re-dated.

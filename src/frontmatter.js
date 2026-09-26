@@ -1,8 +1,9 @@
 /**
  * Minimal front matter parser: a `---` fenced block of simple YAML at the top
  * of a Markdown file. Supports `key: value` scalars, one level of nesting via
- * two-space indentation, quoted strings, `#` comments and blank lines. That is
- * all a post file needs; anything fancier is a validation error, not a feature.
+ * two-space indentation, quoted strings (`\"`, `\\` and `''` escapes), `#`
+ * comments and blank lines. That is all a post file needs; anything fancier
+ * is a validation error, not a feature.
  */
 
 export class FrontmatterError extends Error {
@@ -15,12 +16,33 @@ export class FrontmatterError extends Error {
 
 const KEY = /^([A-Za-z_][\w-]*):(?:\s+(.*))?$/;
 
-function unquote(raw) {
+function unquote(raw, lineNo) {
   const value = raw.trim();
   const quote = value[0];
   if (quote === '"' || quote === "'") {
-    const end = value.indexOf(quote, 1);
-    if (end !== -1) return value.slice(1, end);
+    let out = "";
+    let i = 1;
+    for (; i < value.length; i++) {
+      const c = value[i];
+      // `\"` and `\\` in double quotes (any other backslash is literal), `''` in single quotes.
+      if (quote === '"' && c === "\\" && (value[i + 1] === '"' || value[i + 1] === "\\")) {
+        out += value[++i];
+        continue;
+      }
+      if (c === quote) {
+        if (quote === "'" && value[i + 1] === "'") {
+          out += "'";
+          i++;
+          continue;
+        }
+        break;
+      }
+      out += c;
+    }
+    if (i >= value.length) throw new FrontmatterError("unterminated quoted value", lineNo);
+    const rest = value.slice(i + 1);
+    if (rest.trim() && !/^\s+#/.test(rest)) throw new FrontmatterError("unexpected text after quoted value", lineNo);
+    return out;
   }
   // Strip a trailing comment on an unquoted value ("value  # note").
   const hash = value.search(/\s#/);
@@ -32,7 +54,7 @@ function unquote(raw) {
  * @returns {{ data: Record<string, string | Record<string, string>>, body: string, bodyLine: number }}
  */
 export function parseFrontmatter(source) {
-  const lines = source.split(/\r?\n/);
+  const lines = source.replace(/^\uFEFF/, "").split(/\r?\n/);
   if (lines[0] !== "---") {
     throw new FrontmatterError("file must start with a `---` front matter block", 1);
   }
@@ -54,7 +76,7 @@ export function parseFrontmatter(source) {
       const m = KEY.exec(line.trim());
       if (!m) throw new FrontmatterError(`cannot parse \`${line.trim()}\``, lineNo);
       if (m[2] === undefined) throw new FrontmatterError(`nested key \`${m[1]}\` needs a value`, lineNo);
-      data[parent][m[1]] = unquote(m[2]);
+      data[parent][m[1]] = unquote(m[2], lineNo);
       continue;
     }
     if (/^\s/.test(line)) {
@@ -67,7 +89,7 @@ export function parseFrontmatter(source) {
       data[key] = {};
       parent = key;
     } else {
-      data[key] = unquote(rawValue);
+      data[key] = unquote(rawValue, lineNo);
       parent = null;
     }
   }

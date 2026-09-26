@@ -24,6 +24,8 @@ Paste the printed `glab variable set` command, then run the `doctor` job from CI
 
 ## When something goes wrong
 
-- **"open intent"**: a publish attempt started but its result never made it into the state. Check the platform, then `npx postkasten resolve <file> <channel> --published <id>` or `--drop`, commit, push.
+- **"open intent"** / **"outcome unknown"**: a publish attempt started but its result never made it into the state (job killed, push failed, or the platform did not answer clearly). Check the platform, then `npx postkasten resolve <file> <channel> --published <id>` or `--drop`, commit, push.
+- **"state lost"**: the post is live but its `published` line could not be pushed. Run the `npx postkasten resolve … --published <id>` command from the message, commit, push, then fix the push access.
+- **"due post is invalid"**: a due post fails validation and was not posted. Run `npm run validate`, fix the file (or the rule); if it is now more than 12 hours overdue, set a new `at`.
 - **"skipped"**: the post was more than 12 hours overdue (schedule outage). Change `at` to a new time to post it.
 - **"giving up"**: three failures for the same `at`. Fix the cause (see ntfy message), then re-date the post.

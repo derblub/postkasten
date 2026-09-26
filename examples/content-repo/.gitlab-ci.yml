@@ -17,7 +17,7 @@ stages: [publish]
   before_script:
     - apk add --no-cache git
     - git remote set-url origin "https://oauth2:${GIT_PUSH_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
-    - npm ci --no-audit --no-fund
+    - npm install --no-audit --no-fund
 
 publish:
   <<: *node
