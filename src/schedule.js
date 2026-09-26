@@ -20,7 +20,11 @@ export function parseAt(value) {
     );
   }
   const ms = Date.parse(m[0]);
-  if (Number.isNaN(ms)) throw new Error(`\`at\` is not a valid date: \`${value}\``);
+  const [y, mo, d] = [m[1], m[2], m[3]].map(Number);
+  // Date.parse rolls impossible days over (Feb 30 -> Mar 2) instead of failing.
+  if (Number.isNaN(ms) || d < 1 || d > new Date(Date.UTC(y, mo, 0)).getUTCDate()) {
+    throw new Error(`\`at\` is not a valid date: \`${value}\``);
+  }
   return { ms, offset: m[7] === "Z" ? "+00:00" : m[7] };
 }
 

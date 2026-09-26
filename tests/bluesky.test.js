@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createBluesky, postUrl, rkeyOf } from "../src/bluesky/client.js";
 import { buildRecord, isDuplicate } from "../src/bluesky/embed.js";
+import { countGraphemes } from "../src/text/graphemes.js";
 import { mergeProfile, parseProfile } from "../src/bluesky/profile.js";
 
 function fakeFetch(routes) {
@@ -59,11 +60,20 @@ describe("buildRecord", () => {
     });
     expect(() => buildRecord({ text: "🚀".repeat(301), createdAt: "x" })).toThrow(/301 graphemes/);
   });
-  it("detects duplicates by text or card URL", () => {
+  it("detects duplicates only when text and card URL both match", () => {
     const recent = [{ record: { text: "same" }, embed: { external: { uri: "https://x.example/a" } } }];
-    expect(isDuplicate(recent, { text: "same", link: "https://y.example" })).toBeTruthy();
-    expect(isDuplicate(recent, { text: "other", link: "https://x.example/a" })).toBeTruthy();
-    expect(isDuplicate(recent, { text: "other", link: "https://x.example/b" })).toBeNull();
+    expect(isDuplicate(recent, { text: "same", link: "https://x.example/a" })).toBeTruthy();
+    expect(isDuplicate(recent, { text: "same" })).toBeTruthy();
+    expect(isDuplicate(recent, { text: "same", link: "https://y.example" })).toBeNull();
+    expect(isDuplicate(recent, { text: "other", link: "https://x.example/a" })).toBeNull();
+  });
+  it("clips card title and description on grapheme boundaries", () => {
+    const flag = "\u{1F1E6}\u{1F1F9}";
+    const umlaut = "u\u0308";
+    const { embed } = buildRecord({ text: "t", createdAt: "x", link: "https://x.example", title: "a".repeat(150) + flag.repeat(60), description: umlaut.repeat(360) });
+    expect(countGraphemes(embed.external.title)).toBe(200);
+    expect(embed.external.title.endsWith(flag + "…")).toBe(true);
+    expect(embed.external.description).toBe(umlaut.repeat(299) + "…");
   });
 });
 

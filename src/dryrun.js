@@ -1,6 +1,6 @@
 /**
  * A fetch double for dry runs: records every request to the platform APIs
- * (Authorization redacted, binary bodies summarised) and answers with the
+ * (Authorization and secret body fields redacted, binary bodies summarised) and answers with the
  * minimum the clients need to continue. The recorded list is what `publish
  * --dry-run` prints, and what the tests snapshot.
  */
@@ -16,12 +16,19 @@ export function createRecordingFetch() {
   return { fetch: fetchImpl, requests };
 }
 
+const SECRET_KEYS = ["password", "client_secret", "access_token", "refresh_token", "token", "code"];
+
+function redact(obj) {
+  if (obj && typeof obj === "object") for (const k of SECRET_KEYS) if (k in obj) obj[k] = "***";
+  return obj;
+}
+
 function describeBody(body) {
   if (body === undefined) return undefined;
   if (typeof body === "string") {
-    try { return JSON.parse(body); } catch { return body; }
+    try { return redact(JSON.parse(body)); } catch { return body; }
   }
-  if (body instanceof URLSearchParams) return Object.fromEntries(body);
+  if (body instanceof URLSearchParams) return redact(Object.fromEntries(body));
   if (body?.byteLength !== undefined) return { bytes: body.byteLength };
   return String(body);
 }

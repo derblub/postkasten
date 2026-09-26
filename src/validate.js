@@ -40,7 +40,11 @@ export async function validate({ cwd, config, online = true, fetch: fetchImpl = 
       add(post.file, "error", `\`at\` has offset ${post.offset}, but ${config.timezone} is ${expected} at that time`);
     }
     for (const [channel, cp] of Object.entries(post.channels)) {
-      for (const rule of checkRules(cp.text, rules)) add(post.file, "error", `${channel}: text contains ${describeRule(rule)}`);
+      for (const key of ["text", "title", "description"]) {
+        if (typeof cp[key] !== "string") continue;
+        const what = key === "text" ? "text" : `${channel}.${key}`;
+        for (const rule of checkRules(cp[key], rules)) add(post.file, "error", `${channel}: ${what} contains ${describeRule(rule)}`);
+      }
       for (const key of ["link", "image"]) {
         if (cp[key] && !/^https?:\/\//.test(cp[key])) add(post.file, "error", `${channel}.${key} must be an absolute http(s) URL`);
         if (cp[key]?.includes("utm_")) add(post.file, "error", `${channel}.${key} carries utm_ parameters`);

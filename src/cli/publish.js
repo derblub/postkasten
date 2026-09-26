@@ -25,8 +25,8 @@ export async function run(args) {
     log,
   });
   if (dryRun) out(JSON.stringify({ summary, requests: recorder.requests }, null, 2));
-  else log(`published ${summary.published.length}, failed ${summary.failed.length}, skipped ${summary.skipped.length}, blocked ${summary.blocked.length}, waiting for a disabled channel ${summary.disabled.length}`);
-  process.exitCode = summary.failed.length || summary.blocked.length ? 1 : 0;
+  else log(`published ${summary.published.length}, failed ${summary.failed.length}, skipped ${summary.skipped.length}, blocked ${summary.blocked.length}, invalid and due ${summary.invalidDue.length}, waiting for a disabled channel ${summary.disabled.length}`);
+  process.exitCode = summary.failed.length || summary.blocked.length || summary.invalidDue.length ? 1 : 0;
 }
 
 function withDryCreds(creds) {

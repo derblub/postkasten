@@ -19,6 +19,13 @@ describe("resolveStatus", () => {
     const s = resolveStatus([line("intent"), line("failed", {}, "2026-09-29T06:32:00Z")], F, "linkedin", AT);
     expect(s).toEqual({ status: "pending", failures: 1 });
   });
+  it("closes an intent by file order, not by ts (clocks differ between CI and a laptop)", () => {
+    const skewed = [line("intent", {}, "2026-09-29T10:00:05Z"), line("resolved", {}, "2026-09-29T10:00:01Z")];
+    expect(resolveStatus(skewed, F, "linkedin", AT).status).toBe("pending");
+    expect(openIntents(skewed)).toEqual([]);
+    const reopened = [line("resolved", {}, "2026-09-29T10:05:00Z"), line("intent", {}, "2026-09-29T10:02:00Z")];
+    expect(resolveStatus(reopened, F, "linkedin", AT).status).toBe("blocked");
+  });
   it("gives up after three failures for the same at, re-arms when re-dated", () => {
     const entries = [1, 2, 3].map((i) => line("failed", {}, `2026-09-29T06:3${i}:00Z`));
     expect(resolveStatus(entries, F, "linkedin", AT).status).toBe("given_up");

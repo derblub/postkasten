@@ -1,5 +1,5 @@
 import { buildFacets } from "../text/facets.js";
-import { countGraphemes } from "../text/graphemes.js";
+import { countGraphemes, truncateGraphemes } from "../text/graphemes.js";
 
 export const BLUESKY_MAX_GRAPHEMES = 300;
 export const CARD_TITLE_MAX = 200;
@@ -32,10 +32,10 @@ export function buildRecord({ text, createdAt, lang = "en", link, title, descrip
 
 function clip(text, max) {
   const s = String(text).trim();
-  return countGraphemes(s) > max ? [...s].slice(0, max - 1).join("").trimEnd() + "…" : s;
+  return countGraphemes(s) > max ? truncateGraphemes(s, max - 1).trimEnd() + "…" : s;
 }
 
-/** True when a recent post already carries this text or links to this URL. */
+/** True when a recent post carries this exact text and, if there is a link, the same card URL. */
 export function isDuplicate(recent, { text, link }) {
-  return recent.find((p) => p?.record?.text === text || (link && p?.embed?.external?.uri === link)) ?? null;
+  return recent.find((p) => p?.record?.text === text && (!link || p?.embed?.external?.uri === link)) ?? null;
 }

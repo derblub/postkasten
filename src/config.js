@@ -36,20 +36,32 @@ export async function loadConfig(cwd) {
   return config;
 }
 
-/** Reads credentials from the environment; missing ones are `undefined`. */
+/** Reads credentials from the environment; missing or empty ones are `undefined`. */
 export function credentials(env = process.env) {
+  const v = (k) => env[k]?.trim() || undefined;
   return {
     linkedin: {
-      token: env.LINKEDIN_ACCESS_TOKEN,
-      clientId: env.LINKEDIN_CLIENT_ID,
-      clientSecret: env.LINKEDIN_CLIENT_SECRET,
-      version: env.LINKEDIN_VERSION,
+      token: v("LINKEDIN_ACCESS_TOKEN"),
+      clientId: v("LINKEDIN_CLIENT_ID"),
+      clientSecret: v("LINKEDIN_CLIENT_SECRET"),
+      version: v("LINKEDIN_VERSION"),
     },
     bluesky: {
-      handle: env.BLUESKY_HANDLE,
-      appPassword: env.BLUESKY_APP_PASSWORD,
+      handle: v("BLUESKY_HANDLE"),
+      appPassword: v("BLUESKY_APP_PASSWORD"),
     },
-    ntfyTopic: env.NTFY_TOPIC,
-    ntfyServer: env.NTFY_SERVER || "https://ntfy.sh",
+    ntfyTopic: v("NTFY_TOPIC"),
+    ntfyServer: v("NTFY_SERVER") ?? "https://ntfy.sh",
   };
+}
+
+/**
+ * The LinkedIn-Version header to send: LINKEDIN_VERSION or the config value.
+ * Checked here, where it is used, so a malformed variable only breaks LinkedIn.
+ */
+export function linkedinVersion(creds, config) {
+  const version = creds.linkedin.version;
+  if (version === undefined) return config.linkedinVersion;
+  if (!/^\d{6}$/.test(version)) throw new Error(`LINKEDIN_VERSION must be YYYYMM, got ${version}`);
+  return version;
 }

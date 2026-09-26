@@ -41,8 +41,8 @@ Findings so far: LinkedIn's "little" format needs `\` before `\ | { } @ [ ] ( ) 
 
 ## Token renewal (every 60 days)
 
-The daily `doctor` job calls `introspectToken` and sends an ntfy warning 14, 7, 3 and 1 days before expiry, and immediately when the token is no longer active. Renewal is the four lines under step 4 plus updating the CI variable. Put the expiry date in your calendar as well.
+The daily `doctor` job calls `introspectToken` and sends an ntfy warning 14, 7, 3 and 1 days before expiry (priority `urgent` from 3 days on, and on every run in the last day), and immediately when the token is no longer active. Renewal is the four lines under step 4 plus updating the CI variable. Put the expiry date in your calendar as well.
 
 ## API version
 
-Requests carry `LinkedIn-Version: YYYYMM` (`linkedinVersion` in `postkasten.config.json`, or `LINKEDIN_VERSION`). LinkedIn sunsets versions after about a year; `doctor` warns when the configured version is ten months old. Bump it and run `validate` and a dry run.
+Requests carry `LinkedIn-Version: YYYYMM` (`linkedinVersion` in `postkasten.config.json`, or `LINKEDIN_VERSION`; an empty variable counts as unset, any other value must be `YYYYMM`). LinkedIn sunsets versions after about a year; `doctor` warns when the configured version is ten months old. Bump it and run `validate` and a dry run.

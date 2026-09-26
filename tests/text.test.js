@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countGraphemes, truncateGraphemes } from "../src/text/graphemes.js";
+import { countGraphemes, truncateCodeUnits, truncateGraphemes } from "../src/text/graphemes.js";
 import { buildFacets, findHashtags, findUrls } from "../src/text/facets.js";
 import { escapeLittle } from "../src/text/linkedin-escape.js";
 import { checkRules, parseRules } from "../src/text/rules.js";
@@ -10,6 +10,8 @@ describe("graphemes", () => {
     expect(countGraphemes("👨‍👩‍👧")).toBe(1);
     expect("👨‍👩‍👧".length).toBe(8);
     expect(truncateGraphemes("abc🚀def", 4)).toBe("abc🚀");
+    expect(truncateCodeUnits("ab🚀c", 3)).toBe("ab");
+    expect(truncateCodeUnits("ab🚀c", 4)).toBe("ab🚀");
   });
 });
 
@@ -28,6 +30,17 @@ describe("facets", () => {
   it("trims trailing punctuation and ignores tags inside words", () => {
     expect(findUrls("see (https://a.example/p).").map((u) => u.url)).toEqual(["https://a.example/p"]);
     expect(findHashtags("a#b #c! #d").map((t) => t.tag)).toEqual(["c", "d"]);
+  });
+  it("strips Unicode punctuation and keeps balanced parentheses in URLs", () => {
+    expect(findUrls("„https://x.at/y“ und https://z.at/a… und https://x.org/").map((u) => u.url)).toEqual(["https://x.at/y", "https://z.at/a", "https://x.org/"]);
+    expect(findUrls("Siehe https://de.wikipedia.org/wiki/Foo_(Bar) jetzt").map((u) => u.url)).toEqual(["https://de.wikipedia.org/wiki/Foo_(Bar)"]);
+    expect(findUrls("(siehe https://x.org/Foo_(Bar)).").map((u) => u.url)).toEqual(["https://x.org/Foo_(Bar)"]);
+  });
+  it("follows Bluesky's hashtag rules", () => {
+    const tags = findHashtags("#Wien… #KI» #Tag“ #2024Wahl #2024 ＃Voll");
+    expect(tags.map((t) => t.tag)).toEqual(["Wien", "KI", "Tag", "2024Wahl", "Voll"]);
+    expect(tags[0]).toEqual({ start: 0, end: 5, tag: "Wien" });
+    expect(findHashtags("#" + "ä".repeat(64) + " #" + "a".repeat(65)).map((t) => t.tag.length)).toEqual([64]);
   });
   it("returns no facets for plain text", () => {
     expect(buildFacets("plain")).toEqual([]);

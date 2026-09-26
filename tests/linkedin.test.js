@@ -64,6 +64,12 @@ describe("buildPost", () => {
     expect(buildPost({ authorUrn: "u", text: "t", visibility: "CONNECTIONS" })).not.toHaveProperty("content");
     expect(() => buildPost({ authorUrn: "u", text: "(".repeat(1501) })).toThrow(/limit is 3000/);
   });
+  it("clips card text without splitting surrogate pairs or clusters", () => {
+    const { title, description } = buildPost({ authorUrn: "u", text: "t", link: "https://x.example", title: "a".repeat(198) + "😀😀", description: "b".repeat(297) + "👨‍👩‍👧" }).content.article;
+    expect(title).toBe("a".repeat(198) + "…");
+    expect(title.isWellFormed()).toBe(true);
+    expect(description).toBe("b".repeat(297) + "…");
+  });
 });
 
 describe("auth and introspection", () => {

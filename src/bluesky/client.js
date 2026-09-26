@@ -1,5 +1,7 @@
 import { ApiError, shortBody } from "../errors.js";
 
+const TIMEOUT_MS = 30_000;
+
 /**
  * AT Protocol client for one account, authenticated with an app password.
  * Only the handful of XRPC methods the publisher needs.
@@ -17,6 +19,7 @@ export function createBluesky({ fetch: fetchImpl = globalThis.fetch, service = "
         ...(body !== undefined ? { "content-type": contentType } : {}),
       },
       body: body === undefined ? undefined : contentType === "application/json" ? JSON.stringify(body) : body,
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     const text = await res.text();
     if (!res.ok) throw new ApiError("Bluesky", res.status, shortBody(text), nsid);
@@ -52,13 +55,15 @@ export function createBluesky({ fetch: fetchImpl = globalThis.fetch, service = "
       });
       return feed.map((item) => item.post).filter((p) => p?.author?.did === session.did);
     },
+    /** The profile record, or null when there is none yet (any other error is thrown). */
     async getProfileRecord() {
       try {
         return await xrpc("GET", "com.atproto.repo.getRecord", {
           params: { repo: session.did, collection: "app.bsky.actor.profile", rkey: "self" },
         });
       } catch (err) {
-        if (err.status === 400) return null;
+        // Older PDS versions answer a missing record with InvalidRequest "Could not locate record".
+        if (err.status === 400 && /RecordNotFound|Could not locate record/i.test(err.detail ?? "")) return null;
         throw err;
       }
     },

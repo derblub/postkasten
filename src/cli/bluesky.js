@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { join, dirname } from "node:path";
+import { resolve, dirname } from "node:path";
 import { createBluesky, postUrl, rkeyOf } from "../bluesky/client.js";
 import { buildRecord } from "../bluesky/embed.js";
 import { mergeProfile, parseProfile } from "../bluesky/profile.js";
@@ -19,7 +19,9 @@ export async function run(args) {
 
   if (sub === "profile") {
     const file = args.values.file ?? config.profileFile;
-    const profile = parseProfile(await readFile(join(cwd, file), "utf8"));
+    const profilePath = resolve(cwd, file);
+    const profile = parseProfile(await readFile(profilePath, "utf8"));
+    const avatarType = profile.avatar ? imageType(profile.avatar) : undefined;
     if (args.values["dry-run"]) {
       out(JSON.stringify(profile, null, 2));
       return;
@@ -28,9 +30,8 @@ export async function run(args) {
     const existing = await client.getProfileRecord();
     let avatarBlob;
     if (profile.avatar) {
-      const bytes = await readFile(join(cwd, dirname(file), profile.avatar));
-      const type = profile.avatar.endsWith(".png") ? "image/png" : "image/jpeg";
-      avatarBlob = await client.uploadBlob(new Uint8Array(bytes), type);
+      const bytes = await readFile(resolve(dirname(profilePath), profile.avatar));
+      avatarBlob = await client.uploadBlob(new Uint8Array(bytes), avatarType);
     }
     await client.putProfileRecord(mergeProfile(existing?.value, { ...profile, avatarBlob }), existing?.cid);
     log(`profile of ${handle} updated: "${profile.displayName}", ${profile.description.length} chars bio`);
@@ -53,4 +54,11 @@ export async function run(args) {
     return;
   }
   throw new Error(usage);
+}
+
+/** MIME type of a profile avatar; Bluesky takes PNG and JPEG only. */
+export function imageType(file) {
+  const ext = file.toLowerCase().match(/\.(png|jpe?g)$/)?.[1];
+  if (!ext) throw new Error(`avatar must be a .png, .jpg or .jpeg file, got ${file}`);
+  return ext === "png" ? "image/png" : "image/jpeg";
 }

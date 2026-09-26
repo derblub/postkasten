@@ -14,6 +14,22 @@ describe("parseFrontmatter", () => {
     expect(body).toBe("## linkedin\nText");
   });
 
+  it("ignores a leading byte order mark", () => {
+    expect(parseFrontmatter("﻿---\na: b\n---\nbody").data).toEqual({ a: "b" });
+  });
+
+  it("decodes escapes in quoted values and keeps unquoted ' #' as a comment", () => {
+    const { data } = parseFrontmatter(
+      ["---", 't1: "Sag \\"Hallo\\" bitte"', "t2: 'It''s'", 't3: "a\\\\b"  # note', "t4: Folge #3", 't5: "Folge #3"', 't6: "C:\\Users a\\nb"', "---"].join("\n"),
+    );
+    expect(data).toEqual({ t1: 'Sag "Hallo" bitte', t2: "It's", t3: "a\\b", t4: "Folge", t5: "Folge #3", t6: "C:\\Users a\\nb" });
+  });
+
+  it("rejects unterminated quotes and text after the closing quote", () => {
+    expect(() => parseFrontmatter('---\ntitle: "A" und B\n---\n')).toThrow(/line 2: unexpected text after quoted value/);
+    expect(() => parseFrontmatter('---\nx:\n  title: "open\n---\n')).toThrow(/line 3: unterminated quoted value/);
+  });
+
   it("rejects files without a fence and unclosed fences", () => {
     expect(() => parseFrontmatter("at: x")).toThrow(/must start/);
     expect(() => parseFrontmatter("---\nat: x\n")).toThrow(/never closed/);

@@ -1,3 +1,4 @@
+import { truncateCodeUnits } from "../text/graphemes.js";
 import { escapeLittle, LINKEDIN_MAX_COMMENTARY } from "../text/linkedin-escape.js";
 
 export const TITLE_MAX = 200;
@@ -31,5 +32,5 @@ export function buildPost({ authorUrn, text, link, title, description, thumbnail
 
 function clip(text, max) {
   const s = String(text).trim();
-  return s.length > max ? s.slice(0, max - 1).trimEnd() + "…" : s;
+  return s.length > max ? truncateCodeUnits(s, max - 1).trimEnd() + "…" : s;
 }

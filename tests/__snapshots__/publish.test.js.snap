@@ -77,7 +77,7 @@ https://pushingpixels.at/de/portfolio/zero-downtime-migrations
   {
     "body": {
       "identifier": "h.example",
-      "password": "p",
+      "password": "***",
     },
     "headers": {
       "content-type": "application/json",

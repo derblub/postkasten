@@ -8,6 +8,13 @@ describe("parseAt", () => {
     expect(() => parseAt("2026-09-29T08:30:00")).toThrow(/explicit offset/);
     expect(() => parseAt("2026-09-29")).toThrow(/explicit offset/);
   });
+  it("rejects impossible calendar days instead of rolling over", () => {
+    expect(() => parseAt("2026-02-30T08:30+01:00")).toThrow(/not a valid date/);
+    expect(() => parseAt("2026-04-31T08:00Z")).toThrow(/not a valid date/);
+    expect(() => parseAt("2026-02-29T08:00Z")).toThrow(/not a valid date/);
+    expect(() => parseAt("2026-09-00T08:00Z")).toThrow(/not a valid date/);
+    expect(parseAt("2028-02-29T08:00Z").ms).toBe(Date.parse("2028-02-29T08:00Z"));
+  });
 });
 
 describe("offsetAt", () => {

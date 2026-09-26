@@ -27,6 +27,7 @@ export async function exchangeCode({ code, clientId, clientSecret, redirectUri =
       client_secret: clientSecret,
       redirect_uri: redirectUri,
     }),
+    signal: AbortSignal.timeout(30_000),
   });
   const text = await res.text();
   if (!res.ok) throw new ApiError("LinkedIn", res.status, shortBody(text), "accessToken");

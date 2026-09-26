@@ -13,7 +13,7 @@ An `app.bsky.feed.post` record with:
 - `facets` for hashtags and any links in the text, with UTF-8 byte offsets
 - an `app.bsky.embed.external` card from `link`: title and description from the page's Open Graph tags (or overrides), thumbnail uploaded as a blob (PNG/JPEG under 1 MB)
 
-Before posting, the account's last 50 posts are checked; a post with the same text or the same card URL counts as already published.
+Before posting, the account's last 50 posts are checked; a post with the same text and (if the new post has a link) the same card URL counts as already published. Sharing a link again with new text posts normally.
 
 ## Profile
 

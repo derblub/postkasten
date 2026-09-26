@@ -1,6 +1,7 @@
 import { ApiError, shortBody } from "../errors.js";
 
 export const LINKEDIN_API = "https://api.linkedin.com";
+const TIMEOUT_MS = 30_000;
 
 /**
  * LinkedIn REST client for one member token. `fetch` is injected so tests and
@@ -21,6 +22,7 @@ export function createLinkedIn({ fetch: fetchImpl = globalThis.fetch, token, ver
         ...headers,
       },
       body: body === undefined ? undefined : raw ? body : JSON.stringify(body),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     const text = await res.text();
     if (!res.ok) throw new ApiError("LinkedIn", res.status, shortBody(text), `${method} ${path}`);
@@ -51,6 +53,7 @@ export function createLinkedIn({ fetch: fetchImpl = globalThis.fetch, token, ver
         method: "PUT",
         headers: { authorization: `Bearer ${token}`, "content-type": contentType },
         body: bytes,
+        signal: AbortSignal.timeout(TIMEOUT_MS),
       });
       if (!put.ok) throw new ApiError("LinkedIn", put.status, shortBody(await put.text()), "PUT image");
       return image;
@@ -77,6 +80,7 @@ export async function introspectToken({ clientId, clientSecret, token, fetch: fe
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ client_id: clientId, client_secret: clientSecret, token }),
+    signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   const text = await res.text();
   if (!res.ok) throw new ApiError("LinkedIn", res.status, shortBody(text), "introspectToken");

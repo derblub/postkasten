@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { authorizationUrl, exchangeCode, randomState, waitForCode, DEFAULT_REDIRECT } from "../linkedin/auth.js";
 import { createLinkedIn, postUrl } from "../linkedin/client.js";
 import { buildPost } from "../linkedin/posts.js";
+import { linkedinVersion } from "../config.js";
 import { context, log, out } from "./context.js";
 
 export const usage = [
@@ -39,7 +40,7 @@ async function auth(args, creds) {
 }
 
 async function testPost(args, config, creds) {
-  const li = createLinkedIn({ token: creds.linkedin.token, version: creds.linkedin.version ?? config.linkedinVersion });
+  const li = createLinkedIn({ token: creds.linkedin.token, version: linkedinVersion(creds, config) });
   const { personUrn } = await li.userinfo();
   const text = args.values.text ?? "postkasten test: #Hashtag stays, (parentheses) and a_b_c and 100% stay literal. Delete me.";
   const body = buildPost({ authorUrn: personUrn, text, visibility: "CONNECTIONS" });
@@ -51,7 +52,7 @@ async function testPost(args, config, creds) {
 async function del(args, config, creds) {
   const urn = args.positionals[2];
   if (!urn) throw new Error("linkedin delete <urn>");
-  const li = createLinkedIn({ token: creds.linkedin.token, version: creds.linkedin.version ?? config.linkedinVersion });
+  const li = createLinkedIn({ token: creds.linkedin.token, version: linkedinVersion(creds, config) });
   await li.deletePost(urn);
   log(`deleted ${urn}`);
 }

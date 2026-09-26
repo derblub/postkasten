@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { cp, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -24,3 +25,34 @@ export const resourceFetch = async (url) => {
   if (u.includes("/portfolio/")) return new Response(HTML("Zero-downtime migrations", "/og/zero-downtime-migrations.png"), { status: 200, headers: { "content-type": "text/html" } });
   return new Response("", { status: 404 });
 };
+
+export const git = (cwd, ...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+
+/**
+ * A bare `origin` (push options enabled, like GitLab/GitHub) and a clone of it
+ * holding the example content repo on `main`.
+ */
+export async function gitRepo({ pushOptions = true } = {}) {
+  const root = await mkdtemp(join(tmpdir(), "postkasten-git-"));
+  const origin = join(root, "origin.git");
+  git(root, "init", "-q", "--bare", "-b", "main", origin);
+  git(origin, "config", "receive.advertisePushOptions", String(pushOptions));
+  const seed = await tempRepo();
+  git(seed, "init", "-q", "-b", "main");
+  identity(seed);
+  git(seed, "add", "-A");
+  git(seed, "commit", "-q", "-m", "seed");
+  git(seed, "push", "-q", origin, "main");
+  return { origin, clone: (name) => cloneOf(origin, join(root, name)) };
+}
+
+function cloneOf(origin, dir) {
+  git(tmpdir(), "clone", "-q", origin, dir);
+  identity(dir);
+  return dir;
+}
+
+function identity(dir) {
+  git(dir, "config", "user.name", "test");
+  git(dir, "config", "user.email", "test@localhost");
+}

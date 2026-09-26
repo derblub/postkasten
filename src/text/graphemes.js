@@ -19,3 +19,14 @@ export function truncateGraphemes(text, max) {
   }
   return out;
 }
+
+/** Cuts a string to at most `max` UTF-16 code units, never inside a grapheme cluster. */
+export function truncateCodeUnits(text, max) {
+  if (text.length <= max) return text;
+  let out = "";
+  for (const { segment } of segmenter.segment(text)) {
+    if (out.length + segment.length > max) break;
+    out += segment;
+  }
+  return out;
+}

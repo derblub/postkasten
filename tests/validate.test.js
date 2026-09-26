@@ -21,6 +21,7 @@ describe("validate", () => {
 at: 2026-11-10T08:30:00+02:00
 linkedin:
   link: https://pushingpixels.at/de/x?utm_source=a
+  title: Neu – jetzt online
 bluesky:
   link: https://pushingpixels.at/x
 ---
@@ -40,6 +41,7 @@ ${"a".repeat(301)} https://pushingpixels.at/x
       "error:linkedin: text contains em dash (U+2014)",
       'error:linkedin: text contains "dive into"',
       "error:linkedin.link carries utm_ parameters",
+      "error:linkedin: linkedin.title contains en dash (U+2013)",
       "warning:linkedin: a link without https:// is not reliably clickable",
       "error:bluesky: 328 graphemes, limit is 300",
       "warning:bluesky: text contains a URL although the link card already carries the link",
