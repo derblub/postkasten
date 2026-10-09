@@ -36,7 +36,7 @@ Title, description and image of the link card are read from the page's Open Grap
 Node 24 or newer.
 
 ```sh
-npm install github:derblub/postkasten#v0.1.2
+npm install github:derblub/postkasten#v0.1.3
 npx postkasten --help
 ```
 

@@ -49,4 +49,19 @@ ${"a".repeat(301)} https://pushingpixels.at/x
       expect.stringMatching(/warning:state has a `published` line for a file that no longer exists/),
     ]));
   });
+
+  it("warns when two Bluesky posts share text and link, not when only the link repeats", async () => {
+    const dir = await tempRepo();
+    const post = (at, text) => `---\nat: ${at}\nbluesky:\n  link: https://pushingpixels.at/x\n---\n## bluesky\n${text}\n`;
+    await writeFile(join(dir, "posts/2026-11-10-first.md"), post("2026-11-10T08:30:00+01:00", "Same text"));
+    await writeFile(join(dir, "posts/2026-11-11-other.md"), post("2026-11-11T08:30:00+01:00", "Other text"));
+    await writeFile(join(dir, "posts/2026-11-12-again.md"), post("2026-11-12T08:30:00+01:00", "Same text"));
+    const { ok, problems } = await validate({ cwd: dir, config: await loadConfig(dir), online: false });
+    expect(ok).toBe(true);
+    expect(problems).toEqual([{
+      file: "posts/2026-11-12-again.md",
+      level: "warning",
+      message: "bluesky: same text and link as posts/2026-11-10-first.md; publish would treat it as already posted",
+    }]);
+  });
 });

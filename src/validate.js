@@ -75,6 +75,16 @@ export async function validate({ cwd, config, online = true, fetch: fetchImpl = 
     }
   }
 
+  // publish treats a Bluesky post with the text and card link of a recent one as already posted.
+  const seen = new Map();
+  for (const post of posts) {
+    const cp = post.channels.bluesky;
+    if (!cp) continue;
+    const key = `${cp.text}\n${cp.link}`;
+    if (seen.has(key)) add(post.file, "warning", `bluesky: same text and link as ${seen.get(key)}; publish would treat it as already posted`);
+    else seen.set(key, post.file);
+  }
+
   if (online) {
     for (const post of posts) {
       for (const [channel, cp] of Object.entries(post.channels)) {
