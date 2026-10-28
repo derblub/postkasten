@@ -1,6 +1,38 @@
-# postkasten
+<div align="center">
 
-Scheduled social posts from a git repository. Posts are Markdown files, the publish log is a JSONL file next to them, and a cron job (GitLab schedule, GitHub Actions, plain crontab) runs `postkasten publish` every few minutes. No database, no service to keep alive, no runtime dependencies.
+<a href="https://pushingpixels.at">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/logo-light.svg">
+    <img src="docs/assets/logo.svg" alt="Pushing Pixels" width="96">
+  </picture>
+</a>
+
+<h1>postkasten</h1>
+
+<p><strong>Schedule LinkedIn and Bluesky posts as Markdown files in git and publish them from a cron job.</strong></p>
+
+<p>
+  <a href="https://github.com/derblub/postkasten/actions/workflows/ci.yml"><img src="https://github.com/derblub/postkasten/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/derblub/postkasten/tags"><img src="https://img.shields.io/github/v/tag/derblub/postkasten?sort=semver&label=version&cacheSeconds=3600" alt="Version"></a>
+  <a href="package.json"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fderblub%2Fpostkasten%2Fmain%2Fpackage.json&query=%24.engines.node&label=node&cacheSeconds=3600" alt="Node version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
+</p>
+
+<p>
+  <a href="#install">Install</a> ·
+  <a href="#commands">Commands</a> ·
+  <a href="#how-publishing-stays-safe">How publishing stays safe</a> ·
+  <a href="#time-zones">Time zones</a> ·
+  <a href="#docs">Docs</a> ·
+  <a href="CHANGELOG.md">Changelog</a>
+</p>
+
+</div>
+
+---
+
+Posts are Markdown files, the publish log is a JSONL file next to them, and a cron job (GitLab schedule, GitHub Actions, plain crontab) runs `postkasten publish` every few minutes. No database, no service to keep alive, no runtime dependencies.
 
 Channels: **LinkedIn** (personal profile, via the official Posts API) and **Bluesky** (AT Protocol). Neither platform schedules posts server-side, so the scheduler has to live somewhere; this puts it where your text already is.
 
@@ -93,4 +125,24 @@ Tests cover the pure functions (front matter, graphemes, byte-offset facets with
 - [Bluesky setup](docs/bluesky-setup.md)
 - [CI and operations](docs/ci.md)
 
-MIT. Built for [pushingpixels.at](https://pushingpixels.at).
+## Contributing
+
+A post that went out twice, not at all or with a broken card is the most useful report. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup, and the [Code of Conduct](CODE_OF_CONDUCT.md). Security issues go through [SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT](LICENSE) © Daniel Kurdoghlian, Pushing Pixels
+
+---
+
+<div align="center">
+  <a href="https://pushingpixels.at">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/pushing-pixels-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="docs/assets/pushing-pixels-light.svg">
+      <img src="docs/assets/pushing-pixels.svg" alt="Pushing Pixels" width="320">
+    </picture>
+  </a>
+  <p>Built and maintained by <a href="https://pushingpixels.at">Daniel Kurdoghlian</a> at <a href="https://pushingpixels.at">Pushing Pixels</a> in Vienna.<br>
+  I build <a href="https://pushingpixels.at/creates/web-apps">custom software</a> and the pipelines that ship it.</p>
+</div>

@@ -19,7 +19,7 @@
   "exports": {
     ".": "./src/index.js"
   },
-  "files": ["bin", "src", "docs", "examples", "README.md", "LICENSE"],
+  "files": ["bin", "src", "docs", "!docs/assets", "examples", "README.md", "LICENSE"],
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
