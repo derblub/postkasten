@@ -26,6 +26,6 @@
     "lint": "node --check bin/postkasten.js && node -e \"import('./src/index.js')\""
   },
   "devDependencies": {
-    "vitest": "^3.2.0"
+    "vitest": "^4.1.11"
   }
 }
