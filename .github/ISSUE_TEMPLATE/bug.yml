@@ -1,0 +1,37 @@
+name: Bug
+description: A post that went out wrong, twice or not at all, a validation that is wrong, or a crash.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      render: console
+      placeholder: $ npx postkasten publish --dry-run
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The error message or the output, and what you expected. Remove tokens, handles and anything private.
+    validations:
+      required: true
+  - type: textarea
+    id: post
+    attributes:
+      label: Post file and state
+      description: The post file, and the lines of state/published.jsonl for it. Remove anything private.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: postkasten version
+      placeholder: the tag in your package.json, such as github:derblub/postkasten#v0.1.3
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Node version and where it runs
+      placeholder: Node 24, GitLab CI schedule

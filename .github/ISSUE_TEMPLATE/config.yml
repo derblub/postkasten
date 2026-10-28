@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issue
+    url: https://github.com/derblub/postkasten/security/advisories/new
+    about: Please report vulnerabilities privately.
+  - name: Custom software and delivery pipelines
+    url: https://pushingpixels.at/creates/web-apps
+    about: By the author, Daniel Kurdoghlian (Pushing Pixels).
